@@ -32,7 +32,7 @@ class TelegramConnector(tokenArg: String, botLogin: String, kafka: KafkaClient)
         log.info(s"sent $key to kafka")
         val result = kafka.receive(key)
         log.info(s"received $key from kafka")
-        reply((Json.parse(result) \ "text").get.toString)
+        reply((Json.parse(result) \ "text").as[String])
         log.info(s"replied to $key request to telegram")
       }
     }
