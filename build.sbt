@@ -9,8 +9,7 @@ libraryDependencies ++= Seq(
   "org.apache.kafka" % "kafka-clients" % "0.11.0.0",
   "com.typesafe.play" %% "play-json" % "2.6.2",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
-  "com.typesafe" % "config" % "1.3.1",
-  "com.github.andr83" %% "scalaconfig" % "0.3"
+  "com.typesafe" % "config" % "1.3.1"
 )
 
 enablePlugins(DockerPlugin)

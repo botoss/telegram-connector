@@ -4,7 +4,7 @@ import java.util.Properties
 
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import com.github.andr83.scalaconfig._
+
 import scala.collection.JavaConverters._
 
 class KafkaClient(implicit val env: Environment) extends Logging {
@@ -28,7 +28,15 @@ class KafkaClient(implicit val env: Environment) extends Logging {
     throw new RuntimeException
   }
 
-  private val props = env.config.atKey("kafka").as[Properties]
+  private val props = {
+    val map = env.config.getConfig("kafka").entrySet().asScala.map { entry =>
+      entry.getKey -> entry.getValue.unwrapped()
+    }.toMap.asJava
+    val props = new Properties()
+    props.putAll(map)
+    props
+  }
+
   private val producer = new KafkaProducer[String, String](props)
 
   private val toConnectorTopic = "to-connector"
