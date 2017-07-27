@@ -10,9 +10,8 @@ import play.api.libs.json.Json
 class TelegramConnector(kafka: KafkaClient)(implicit env: Environment)
   extends TelegramBot with Polling with Commands with Logging {
 
-  private val botConfig = env.config.getConfig("telegram.bot")
-  override lazy val token: String = botConfig.getString("token")
-  private val botUsername = botConfig.getString("username")
+  override lazy val token: String = env.config.getString("telegram.bot.token")
+  private val botUsername = env.config.getString("telegram.bot.username")
 
   onMessage { implicit msg =>
     using(textTokens) { tokens =>
