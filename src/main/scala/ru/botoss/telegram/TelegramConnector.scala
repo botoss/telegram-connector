@@ -7,10 +7,12 @@ import info.mukel.telegrambot4s.api.declarative.{Commands, ToCommand}
 import info.mukel.telegrambot4s.api.{Polling, TelegramBot}
 import play.api.libs.json.Json
 
-class TelegramConnector(tokenArg: String, botLogin: String, kafka: KafkaClient)
+class TelegramConnector(kafka: KafkaClient)(implicit env: Environment)
   extends TelegramBot with Polling with Commands with Logging {
 
-  override lazy val token: String = tokenArg
+  private val botConfig = env.config.getConfig("telegram.bot")
+  override lazy val token: String = botConfig.getString("token")
+  private val botUsername = botConfig.getString("username")
 
   onMessage { implicit msg =>
     using(textTokens) { tokens =>
@@ -20,7 +22,7 @@ class TelegramConnector(tokenArg: String, botLogin: String, kafka: KafkaClient)
       if (head.startsWith(ToCommand.CommandPrefix)) {
         // In group chats command
         val cmd = head.substring(1) // remove command prefix (/)
-            .replace(s"@$botLogin", "") // in group chat commands looks this way: /cmd@$botLogin
+            .replace(s"@$botUsername", "") // in group chat commands looks this way: /cmd@$botUsername
         val args = tokens.tail
         val key = UUID.randomUUID().toString
         val value = Json.obj(
