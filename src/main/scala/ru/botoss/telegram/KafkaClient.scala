@@ -2,25 +2,26 @@ package ru.botoss.telegram
 
 import java.util.Properties
 
+import com.typesafe.scalalogging.StrictLogging
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 
 import scala.collection.JavaConverters._
 
-class KafkaClient(implicit val env: Environment) extends Logging {
+class KafkaClient(implicit val env: Environment) extends StrictLogging {
   def send(key: String, value: String): Unit = {
-    log.info(s"sending $key to kafka")
+    logger.info(s"sending $key to kafka")
     producer.send(new ProducerRecord[String, String](toModuleTopic, key, value))
-    log.info(s"sent $key to kafka")
+    logger.info(s"sent $key to kafka")
   }
 
   def receive(key: String): String = {
     while (true) {
       val records = consumer.poll(1000).asScala
-      log.debug(s"got records $records")
+      logger.debug(s"got records $records")
       records.find(record => record.key().equals(key)) match {
         case Some(foundRecord) =>
-          log.debug(s"found record $foundRecord")
+          logger.debug(s"found record $foundRecord")
           return foundRecord.value()
         case None =>
       }
@@ -43,7 +44,7 @@ class KafkaClient(implicit val env: Environment) extends Logging {
   private val toModuleTopic = "to-module"
 
   private val consumer = new KafkaConsumer[String, String](props)
-  log.debug(s"created kafka consumer")
+  logger.debug(s"created kafka consumer")
   consumer.subscribe(Seq(toConnectorTopic).asJava)
-  log.debug(s"subscribed to topic $toConnectorTopic")
+  logger.debug(s"subscribed to topic $toConnectorTopic")
 }

@@ -8,14 +8,14 @@ import info.mukel.telegrambot4s.api.{Polling, TelegramBot}
 import play.api.libs.json.Json
 
 class TelegramConnector(kafka: KafkaClient)(implicit env: Environment)
-  extends TelegramBot with Polling with Commands with Logging {
+  extends TelegramBot with Polling with Commands {
 
   override lazy val token: String = env.config.getString("telegram.bot.token")
   private val botUsername = env.config.getString("telegram.bot.username")
 
   onMessage { implicit msg =>
     using(textTokens) { tokens =>
-      log.debug(s"got tokens $tokens")
+      logger.debug(s"got tokens $tokens")
       val head = tokens.head
       // Filter only commands
       if (head.startsWith(ToCommand.CommandPrefix)) {
@@ -30,11 +30,11 @@ class TelegramConnector(kafka: KafkaClient)(implicit env: Environment)
           "params" -> args
         ).toString
         kafka.send(key, value)
-        log.info(s"sent $key to kafka")
+        logger.info(s"sent $key to kafka")
         val result = kafka.receive(key)
-        log.info(s"received $key from kafka")
+        logger.info(s"received $key from kafka")
         reply((Json.parse(result) \ "text").as[String])
-        log.info(s"replied to $key request to telegram")
+        logger.info(s"replied to $key request to telegram")
       }
     }
   }
