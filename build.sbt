@@ -7,9 +7,11 @@ scalaVersion := "2.12.1"
 libraryDependencies ++= Seq(
   "info.mukel" %% "telegrambot4s" % "3.0.1",
   "org.apache.kafka" % "kafka-clients" % "0.11.0.0",
-  "com.typesafe.play" %% "play-json" % "2.6.2",
+  "io.spray" %%  "spray-json" % "1.3.3",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
-  "com.typesafe" % "config" % "1.3.1"
+  "com.typesafe" % "config" % "1.3.1",
+  "org.scalaz" %% "scalaz-core" % "7.2.14",
+  "com.jsuereth" %% "scala-arm" % "2.0"
 )
 
 enablePlugins(DockerPlugin)
