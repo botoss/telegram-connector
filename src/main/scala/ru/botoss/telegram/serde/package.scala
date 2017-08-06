@@ -25,5 +25,5 @@ package object serde {
     Show.shows[T](_.toJson.toString)
 
   implicit def readJson[T](implicit jsonReader: JsonReader[T]): Read[T] =
-    s => jsonReader.read(s.toJson)
+    s => jsonReader.read(s.parseJson)
 }
