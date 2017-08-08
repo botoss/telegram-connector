@@ -5,12 +5,12 @@ import ru.botoss.telegram.queue.QueueReceiver
 
 import scala.concurrent.duration._
 
-class QueueReceiverActor[K, V](receiver: QueueReceiver[K, V], queueProxyActor: ActorRef) extends Actor {
+class QueueReceiverActor[K, V](receiver: QueueReceiver[K, V], sendTo: ActorRef) extends Actor {
   self ! Poll
 
   override def receive: Receive = {
     case Poll =>
-      receiver.syncReceive(100.millis).foreach(queueProxyActor ! _)
+      receiver.syncReceive(100.millis).foreach(sendTo ! _)
       self ! Poll
   }
 
@@ -18,6 +18,6 @@ class QueueReceiverActor[K, V](receiver: QueueReceiver[K, V], queueProxyActor: A
 }
 
 object QueueReceiverActor {
-  def props[K, V](receiver: QueueReceiver[K, V], queueProxyActor: ActorRef) =
-    Props(new QueueReceiverActor(receiver, queueProxyActor))
+  def props[K, V](receiver: QueueReceiver[K, V], sendTo: ActorRef) =
+    Props(new QueueReceiverActor(receiver, sendTo))
 }
