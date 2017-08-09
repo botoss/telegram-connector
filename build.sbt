@@ -11,7 +11,11 @@ libraryDependencies ++= Seq(
   "ch.qos.logback" % "logback-classic" % "1.2.3",
   "com.typesafe" % "config" % "1.3.1",
   "org.scalaz" %% "scalaz-core" % "7.2.14",
-  "com.jsuereth" %% "scala-arm" % "2.0"
+  "com.jsuereth" %% "scala-arm" % "2.0",
+  "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+  "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % Test,
+  "com.typesafe.akka" %% "akka-testkit" % "2.5.3" % Test,
+  "net.manub" %% "scalatest-embedded-kafka" % "0.15.0" % Test
 )
 
 enablePlugins(DockerPlugin)
