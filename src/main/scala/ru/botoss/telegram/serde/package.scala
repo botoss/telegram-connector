@@ -16,8 +16,13 @@ package object serde {
 
   implicit val commandFormat: JsonFormat[Command] = jsonFormat2(Command)
 
-  implicit val requestFormat: JsonWriter[Request] =
-    request => commandFormat.write(request.command)
+  implicit val requestFormat: JsonFormat[Request] = new JsonFormat[Request] {
+    override def read(json: JsValue): Request =
+      Request(commandFormat.read(json))
+
+    override def write(request: Request): JsValue =
+      commandFormat.write(request.command)
+  }
 
   implicit val responseFormat: JsonFormat[Response] = jsonFormat1(Response)
 
@@ -26,4 +31,8 @@ package object serde {
 
   implicit def readJson[T](implicit jsonReader: JsonReader[T]): Read[T] =
     s => jsonReader.read(s.parseJson)
+
+  implicit def readDeserializer[T: Read] = new ReadDeserializer[T]
+
+  implicit def showSerializer[T: Show] = new ShowSerializer[T]
 }

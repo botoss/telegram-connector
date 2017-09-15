@@ -5,7 +5,7 @@ import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.{Logger, StrictLogging}
 import info.mukel.telegrambot4s.api.Extractors._
 import info.mukel.telegrambot4s.api.declarative.{Commands, ToCommand}
-import info.mukel.telegrambot4s.api.{BotBase, Polling}
+import info.mukel.telegrambot4s.api.{BotBase, Polling, RequestHandler}
 import info.mukel.telegrambot4s.clients.AkkaClient
 import info.mukel.telegrambot4s.models.Message
 import org.slf4j.LoggerFactory.getLogger
@@ -21,7 +21,7 @@ class Bot(queueProxyActor: ActorRef)(implicit env: Environment)
   override implicit val executionContext: ExecutionContext = env.executionContext
 
   override lazy val token: String = env.config.getString("telegram.bot.token")
-  override val client = new AkkaClient(token)
+  override val client: RequestHandler = new AkkaClient(token)
   private val botUsername = env.config.getString("telegram.bot.username")
   override val logger: Logger = Logger(getLogger(getClass.getName))
 

@@ -26,7 +26,7 @@ object Main extends App {
 
   system.actorOf(
     QueueReceiverActor.props(
-      new KafkaReceiver(consumer, topic = "to-connector"), queueProxyActor
+      new KafkaReceiver(consumer, topic = "to-connector"), sendTo = queueProxyActor
     )
   )
 
