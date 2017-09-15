@@ -12,7 +12,7 @@ class ShowDeserializerSpec extends UnitSpec {
 
   "ShowSerializer" should "deserialize valid data" in {
     show.shows _ expects data returning serializedData
-    serializer.serialize(null, data) shouldBe serializedData
+    serializer.serialize(null, data) shouldBe serializedData.getBytes
   }
 
   it should "configure silently" in {
