@@ -30,7 +30,7 @@ class MainSpec extends UnitSpec with RichEmbeddedKafka {
       val queueProxyActor = system.actorOf(
         QueueProxyActor.props(
           new KafkaSender(producer, topic = "to-module"),
-          3.seconds))
+          10.seconds))
 
       system.actorOf(
         QueueReceiverActor.props(
