@@ -6,13 +6,19 @@ import akka.actor.{Actor, ActorRef, Props}
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.QueueSender
 
-class QueueProxyActor(toModuleSender: QueueSender[Key, Request]) extends Actor {
+import scala.concurrent.duration.FiniteDuration
+
+class QueueProxyActor(toModuleSender: QueueSender[Key, Request],
+                      timeout: FiniteDuration) extends Actor {
+  private implicit val ec = context.dispatcher
+
   override def receive: Receive = receiveImpl(Map())
 
   private def receiveImpl(cache: Map[Key, ActorRef]): Receive = {
     case request: Request =>
       val key = UUID.randomUUID()
       toModuleSender.asyncSend(key, request)
+      context.system.scheduler.scheduleOnce(timeout, self, RequestTimeout(key))
       context become receiveImpl(cache + (key -> sender()))
     case (key: Key, response: Response) =>
       val partitioned = cache.partition(_._1 == key)
@@ -22,10 +28,15 @@ class QueueProxyActor(toModuleSender: QueueSender[Key, Request]) extends Actor {
           context become receiveImpl(newCache)
         case _ =>
       }
+    case RequestTimeout(key) =>
+      context become receiveImpl(cache - key)
   }
 }
 
 object QueueProxyActor {
-  def props(toModuleSender: QueueSender[Key, Request]) =
-    Props(new QueueProxyActor(toModuleSender))
+  def props(toModuleSender: QueueSender[Key, Request],
+            timeout: FiniteDuration) =
+    Props(new QueueProxyActor(toModuleSender, timeout))
 }
+
+private case class RequestTimeout(key: Key)

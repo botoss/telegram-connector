@@ -9,6 +9,8 @@ import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.{KafkaReceiver, KafkaSender}
 import ru.botoss.telegram.serde._
 
+import scala.concurrent.duration._
+
 class MainSpec extends UnitSpec with RichEmbeddedKafka {
   it should "handle request" in {
     withRunningKafka {
@@ -27,7 +29,8 @@ class MainSpec extends UnitSpec with RichEmbeddedKafka {
 
       val queueProxyActor = system.actorOf(
         QueueProxyActor.props(
-          new KafkaSender(producer, topic = "to-module")))
+          new KafkaSender(producer, topic = "to-module"),
+          3.seconds))
 
       system.actorOf(
         QueueReceiverActor.props(
