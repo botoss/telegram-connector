@@ -5,6 +5,8 @@ import java.util.UUID
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.QueueSender
 
+import scala.concurrent.duration._
+
 class QueueProxyActorSpec extends ActorUnitSpec {
   private val request = mock[Request]
   private val response = mock[Response]
@@ -12,7 +14,7 @@ class QueueProxyActorSpec extends ActorUnitSpec {
   // this way we get UUID generated inside actor
   private val sender: QueueSender[Key, Request] =
     (key, _) => self ! (key, response)
-  private val proxy = system.actorOf(QueueProxyActor.props(sender))
+  private val proxy = system.actorOf(QueueProxyActor.props(sender, 1.second))
 
   "QueueProxyActor" should "response to known actor" in {
     proxy ! request
