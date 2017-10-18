@@ -5,7 +5,7 @@ version := "1.0"
 scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
-  "info.mukel" %% "telegrambot4s" % "3.0.1",
+  "info.mukel" %% "telegrambot4s" % "3.0.13",
   "org.apache.kafka" % "kafka-clients" % "0.11.0.0",
   "io.spray" %%  "spray-json" % "1.3.3",
   "ch.qos.logback" % "logback-classic" % "1.2.3",
