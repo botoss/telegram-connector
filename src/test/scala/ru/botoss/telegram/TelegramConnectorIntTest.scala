@@ -4,47 +4,22 @@ import info.mukel.telegrambot4s.api.RequestHandler
 import info.mukel.telegrambot4s.methods.SendMessage
 import info.mukel.telegrambot4s.models.{Chat, ChatId, ChatType, Message}
 import net.manub.embeddedkafka.EmbeddedKafka
-import org.apache.kafka.clients.consumer.KafkaConsumer
-import org.apache.kafka.clients.producer.KafkaProducer
 import ru.botoss.telegram.model.{Key, Request, Response}
-import ru.botoss.telegram.queue.{KafkaReceiver, KafkaSender}
 import ru.botoss.telegram.serde._
 
 import scala.concurrent.duration._
 
-class MainSpec extends UnitSpec with EmbeddedKafka {
+class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka {
   it should "handle request" in {
     withRunningKafka {
       implicit val env = TestEnvironment
-      import env._
-
-      val producer = new KafkaProducer(
-        kafkaProperties,
-        new ShowSerializer[Key],
-        new ShowSerializer[Request])
-
-      val consumer = new KafkaConsumer(
-        kafkaProperties,
-        new ReadDeserializer[Key],
-        new ReadDeserializer[Response])
-
-      val queueProxyActor = system.actorOf(
-        QueueProxyActor.props(
-          new KafkaSender(producer, topic = "to-module"),
-          10.seconds))
-
-      system.actorOf(
-        QueueReceiverActor.props(
-          new KafkaReceiver(consumer, topic = "to-connector"), sendTo = queueProxyActor
-        )
-      )
-
       val requestHandler = mock[RequestHandler]
-
-      val bot = new Bot(queueProxyActor) {
-        override val client: RequestHandler = requestHandler
-      }
-
+      val bot = TelegramConnectorFactory(
+        new Bot(_) {
+          override val client: RequestHandler = requestHandler
+        },
+        proxyTimeout = 10.seconds
+      )
       bot.receiveMessage(Message(
         messageId = 1,
         date = (System.currentTimeMillis() / 1000).toInt,
