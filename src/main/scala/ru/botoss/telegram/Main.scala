@@ -6,6 +6,8 @@ import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.{KafkaReceiver, KafkaSender}
 import ru.botoss.telegram.serde._
 
+import scala.concurrent.duration._
+
 object Main extends App {
   implicit val env = DockerEnvironment
   import env._
@@ -22,7 +24,8 @@ object Main extends App {
 
   val queueProxyActor = system.actorOf(
     QueueProxyActor.props(
-      new KafkaSender(producer, topic = "to-module")))
+      new KafkaSender(producer, topic = "to-module"),
+      3.seconds))
 
   system.actorOf(
     QueueReceiverActor.props(

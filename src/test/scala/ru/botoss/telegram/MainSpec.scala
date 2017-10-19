@@ -3,13 +3,16 @@ package ru.botoss.telegram
 import info.mukel.telegrambot4s.api.RequestHandler
 import info.mukel.telegrambot4s.methods.SendMessage
 import info.mukel.telegrambot4s.models.{Chat, ChatId, ChatType, Message}
+import net.manub.embeddedkafka.EmbeddedKafka
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.{KafkaReceiver, KafkaSender}
 import ru.botoss.telegram.serde._
 
-class MainSpec extends UnitSpec with RichEmbeddedKafka {
+import scala.concurrent.duration._
+
+class MainSpec extends UnitSpec with EmbeddedKafka {
   it should "handle request" in {
     withRunningKafka {
       implicit val env = TestEnvironment
@@ -27,7 +30,8 @@ class MainSpec extends UnitSpec with RichEmbeddedKafka {
 
       val queueProxyActor = system.actorOf(
         QueueProxyActor.props(
-          new KafkaSender(producer, topic = "to-module")))
+          new KafkaSender(producer, topic = "to-module"),
+          10.seconds))
 
       system.actorOf(
         QueueReceiverActor.props(
@@ -52,7 +56,7 @@ class MainSpec extends UnitSpec with RichEmbeddedKafka {
         SendMessage(ChatId(1), "UPPERCASE IT"), *
       )
 
-      val (key, request) = consumeFirstMessageWithKeyFrom[Key, Request]("to-module")
+      val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
       val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
       publishToKafka("to-connector", key, response)
     }

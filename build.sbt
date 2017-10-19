@@ -15,7 +15,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "org.scalamock" %% "scalamock-scalatest-support" % "3.6.0" % Test,
   "com.typesafe.akka" %% "akka-testkit" % "2.5.3" % Test,
-  "net.manub" %% "scalatest-embedded-kafka" % "0.15.0" % Test
+  "net.manub" %% "scalatest-embedded-kafka" % "0.16.0" % Test
 )
 
 enablePlugins(DockerPlugin)
