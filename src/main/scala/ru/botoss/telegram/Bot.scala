@@ -3,6 +3,7 @@ package ru.botoss.telegram
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.{Logger, StrictLogging}
+import info.mukel.telegrambot4s.api.Extractors._
 import info.mukel.telegrambot4s.api.declarative.Commands
 import info.mukel.telegrambot4s.api.{BotBase, Polling, RequestHandler}
 import info.mukel.telegrambot4s.clients.AkkaClient
@@ -13,7 +14,7 @@ import ru.botoss.telegram.model.{Command, Request, Response}
 import scala.concurrent.ExecutionContext
 
 class Bot(queueProxyActor: ActorRef)(implicit env: Environment)
-  extends BotBase with Polling with Commands with CommandExtractors with StrictLogging {
+  extends BotBase with Polling with Commands with StrictLogging {
 
   override implicit val system: ActorSystem = env.system
   override implicit val materializer: ActorMaterializer = env.materializer
