@@ -4,7 +4,7 @@ import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.stream.ActorMaterializer
 import com.typesafe.scalalogging.{Logger, StrictLogging}
 import info.mukel.telegrambot4s.api.Extractors._
-import info.mukel.telegrambot4s.api.declarative.{Commands, ToCommand}
+import info.mukel.telegrambot4s.api.declarative.Commands
 import info.mukel.telegrambot4s.api.{BotBase, Polling, RequestHandler}
 import info.mukel.telegrambot4s.clients.AkkaClient
 import info.mukel.telegrambot4s.models.Message
@@ -22,19 +22,11 @@ class Bot(queueProxyActor: ActorRef)(implicit env: Environment)
 
   override lazy val token: String = env.config.getString("telegram.bot.token")
   override val client: RequestHandler = new AkkaClient(token)
-  private val botUsername = env.config.getString("telegram.bot.username")
   override val logger: Logger = Logger(getLogger(getClass.getName))
 
   onMessage { implicit msg =>
-    using(textTokens) { tokens =>
-      logger.debug(s"got tokens $tokens")
-      val head = tokens.head
-      // Filter only commands
-      if (head.startsWith(ToCommand.CommandPrefix)) {
-        // In group chats command
-        val cmd = head.substring(1) // remove command prefix (/)
-            .replace(s"@$botUsername", "") // in group chat commands looks this way: /cmd@$botUsername
-        val args = tokens.tail
+    using(command) { cmd =>
+      withArgs { args =>
         system.actorOf(ConnectorActor.props()) ! Request(Command(cmd, args))
       }
     }
