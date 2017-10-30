@@ -11,19 +11,20 @@ import ru.botoss.telegram.serde._
 import scala.concurrent.duration._
 
 class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAndAfterAll {
+  implicit private val env = TestEnvironment
+  private val requestHandler = mock[RequestHandler]
+  private val bot = TelegramConnectorFactory(
+    new Bot(_) {
+      override val client: RequestHandler = requestHandler
+    },
+    proxyTimeout = 10.seconds
+  )
+
   override protected def beforeAll(): Unit = {
     EmbeddedKafka.start()
   }
 
   it should "handle request" in {
-    implicit val env = TestEnvironment
-    val requestHandler = mock[RequestHandler]
-    val bot = TelegramConnectorFactory(
-      new Bot(_) {
-        override val client: RequestHandler = requestHandler
-      },
-      proxyTimeout = 10.seconds
-    )
     bot.receiveMessage(Message(
       messageId = 1,
       date = (System.currentTimeMillis() / 1000).toInt,
