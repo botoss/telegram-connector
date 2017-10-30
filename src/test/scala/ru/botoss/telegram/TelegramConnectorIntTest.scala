@@ -16,28 +16,28 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
   }
 
   it should "handle request" in {
-      implicit val env = TestEnvironment
-      val requestHandler = mock[RequestHandler]
-      val bot = TelegramConnectorFactory(
-        new Bot(_) {
-          override val client: RequestHandler = requestHandler
-        },
-        proxyTimeout = 10.seconds
-      )
-      bot.receiveMessage(Message(
-        messageId = 1,
-        date = (System.currentTimeMillis() / 1000).toInt,
-        chat = Chat(id = 1, `type` = ChatType.Private),
-        text = Some("/testcmd uppercase it")
-      ))
+    implicit val env = TestEnvironment
+    val requestHandler = mock[RequestHandler]
+    val bot = TelegramConnectorFactory(
+      new Bot(_) {
+        override val client: RequestHandler = requestHandler
+      },
+      proxyTimeout = 10.seconds
+    )
+    bot.receiveMessage(Message(
+      messageId = 1,
+      date = (System.currentTimeMillis() / 1000).toInt,
+      chat = Chat(id = 1, `type` = ChatType.Private),
+      text = Some("/testcmd uppercase it")
+    ))
 
-      (requestHandler.apply(_: SendMessage)(_: Manifest[Message])).expects(
-        SendMessage(ChatId(1), "UPPERCASE IT"), *
-      )
+    (requestHandler.apply(_: SendMessage)(_: Manifest[Message])).expects(
+      SendMessage(ChatId(1), "UPPERCASE IT"), *
+    )
 
-      val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
-      val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
-      publishToKafka("to-connector", key, response)
+    val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
+    val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
+    publishToKafka("to-connector", key, response)
   }
 
   override protected def afterAll(): Unit = {
