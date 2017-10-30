@@ -4,14 +4,18 @@ import info.mukel.telegrambot4s.api.RequestHandler
 import info.mukel.telegrambot4s.methods.SendMessage
 import info.mukel.telegrambot4s.models.{Chat, ChatId, ChatType, Message}
 import net.manub.embeddedkafka.EmbeddedKafka
+import org.scalatest.BeforeAndAfterAll
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.serde._
 
 import scala.concurrent.duration._
 
-class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka {
+class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAndAfterAll {
+  override protected def beforeAll(): Unit = {
+    EmbeddedKafka.start()
+  }
+
   it should "handle request" in {
-    withRunningKafka {
       implicit val env = TestEnvironment
       val requestHandler = mock[RequestHandler]
       val bot = TelegramConnectorFactory(
@@ -34,6 +38,9 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka {
       val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
       val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
       publishToKafka("to-connector", key, response)
-    }
+  }
+
+  override protected def afterAll(): Unit = {
+    EmbeddedKafka.stop()
   }
 }
