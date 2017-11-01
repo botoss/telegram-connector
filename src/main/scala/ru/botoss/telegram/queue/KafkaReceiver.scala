@@ -7,8 +7,9 @@ import org.apache.kafka.clients.consumer.KafkaConsumer
 import scala.collection.JavaConverters._
 import scala.concurrent.blocking
 import scala.concurrent.duration.FiniteDuration
+import scala.util.{Success, Try}
 
-class KafkaReceiver[K, V](kafkaConsumer: KafkaConsumer[K, V], topic: Topic) extends QueueReceiver[K, V] {
+class KafkaReceiver[K, V](kafkaConsumer: KafkaConsumer[Try[K], Try[V]], topic: Topic) extends QueueReceiver[K, V] {
 
   kafkaConsumer.subscribe(singletonList(topic))
 
@@ -16,7 +17,9 @@ class KafkaReceiver[K, V](kafkaConsumer: KafkaConsumer[K, V], topic: Topic) exte
     blocking {
       kafkaConsumer.poll(timeout.toMillis)
     }.asScala
-      .map(record => (record.key(), record.value()))
-      .toSeq
+      .collect {
+        case ConsumerRecord(Success(key), Success(value)) =>
+          key -> value
+      }.toSeq
   }
 }

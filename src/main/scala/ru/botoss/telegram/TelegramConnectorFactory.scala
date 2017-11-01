@@ -32,8 +32,8 @@ object TelegramConnectorFactory {
       new ShowSerializer[Request])
     val consumer = new KafkaConsumer(
       kafkaProperties,
-      new ReadDeserializer[Key],
-      new ReadDeserializer[Response])
+      new TryDeserializer(new ReadDeserializer[Key]),
+      new TryDeserializer(new ReadDeserializer[Response]))
     val queueProxyActor = system.actorOf(
       QueueProxyActor.props(
         new KafkaSender(producer, topic = "to-module"),
