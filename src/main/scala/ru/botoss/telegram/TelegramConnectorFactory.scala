@@ -37,12 +37,14 @@ object TelegramConnectorFactory {
     val queueProxyActor = system.actorOf(
       QueueProxyActor.props(
         new KafkaSender(producer, topic = "to-module"),
-        proxyTimeout))
+        proxyTimeout),
+      "queue-proxy"
+    )
     system.actorOf(
       QueueReceiverActor.props(
         new KafkaReceiver(consumer, topic = "to-connector"),
-        sendTo = queueProxyActor
-      )
+        sendTo = queueProxyActor),
+      "queue-receiver"
     )
     botGen(queueProxyActor)
   }
