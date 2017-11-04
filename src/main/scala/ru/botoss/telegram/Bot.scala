@@ -9,7 +9,7 @@ import info.mukel.telegrambot4s.api.declarative.Commands
 import info.mukel.telegrambot4s.api.{BotBase, Polling, RequestHandler}
 import info.mukel.telegrambot4s.clients.AkkaClient
 import info.mukel.telegrambot4s.models.Message
-import ru.botoss.telegram.logged.{LoggedActor, Logging}
+import ru.botoss.telegram.logged.{ActorLogging, Logging}
 import ru.botoss.telegram.model.{Command, Request, Response}
 
 import scala.concurrent.ExecutionContext
@@ -49,6 +49,6 @@ class Bot(queueProxyActor: ActorRef)(implicit env: Environment)
 
   private object ConnectorActor {
     def props()(implicit msg: Message): Props =
-      Props(new ConnectorActor() with LoggedActor)
+      Props(new ConnectorActor() with ActorLogging)
   }
 }
