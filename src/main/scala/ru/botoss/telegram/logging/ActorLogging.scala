@@ -1,4 +1,4 @@
-package ru.botoss.telegram.logged
+package ru.botoss.telegram.logging
 
 import akka.actor.Actor
 import akka.event.LoggingReceive

@@ -3,7 +3,7 @@ package ru.botoss.telegram
 import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, Props}
-import ru.botoss.telegram.logged.ActorLogging
+import ru.botoss.telegram.logging.ActorLogging
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.QueueSender
 

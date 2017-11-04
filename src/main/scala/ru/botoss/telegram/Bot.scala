@@ -9,7 +9,7 @@ import info.mukel.telegrambot4s.api.declarative.Commands
 import info.mukel.telegrambot4s.api.{BotBase, Polling, RequestHandler}
 import info.mukel.telegrambot4s.clients.AkkaClient
 import info.mukel.telegrambot4s.models.Message
-import ru.botoss.telegram.logged.{ActorLogging, Logging}
+import ru.botoss.telegram.logging.{ActorLogging, Logging}
 import ru.botoss.telegram.model.{Command, Request, Response}
 
 import scala.concurrent.ExecutionContext

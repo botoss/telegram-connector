@@ -1,6 +1,6 @@
 package ru.botoss.telegram
 
-import ru.botoss.telegram.logged.BotLogging
+import ru.botoss.telegram.logging.BotLogging
 
 import scala.concurrent.duration._
 

@@ -6,7 +6,7 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
 import resource._
-import ru.botoss.telegram.logged.Logging
+import ru.botoss.telegram.logging.Logging
 
 import scala.concurrent.ExecutionContext
 

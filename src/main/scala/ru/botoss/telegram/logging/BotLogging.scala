@@ -1,4 +1,4 @@
-package ru.botoss.telegram.logged
+package ru.botoss.telegram.logging
 
 import info.mukel.telegrambot4s.api.BotExecutionContext
 import info.mukel.telegrambot4s.api.declarative.Messages
