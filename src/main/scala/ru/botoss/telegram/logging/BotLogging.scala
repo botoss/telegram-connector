@@ -31,7 +31,7 @@ trait BotLogging extends Messages with BotExecutionContext with Logging {
       s"$disableNotification, " +
       s"$replyToMessageId, " +
       s"$replyMarkup" +
-      s")"
+      s")($message)"
     logger.info(invocation)
     val future = super.reply(
       text,
