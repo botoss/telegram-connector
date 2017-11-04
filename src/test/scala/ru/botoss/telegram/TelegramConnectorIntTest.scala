@@ -26,6 +26,7 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
   }
 
   it should "handle request" in {
+
     bot.receiveMessage(Message(
       messageId = 1,
       date = (System.currentTimeMillis() / 1000).toInt,
