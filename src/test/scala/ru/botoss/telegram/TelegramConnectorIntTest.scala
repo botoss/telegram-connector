@@ -23,10 +23,11 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
     },
     proxyTimeout
   )
-  private val responseMessage = Message(
+  private val message = Message(
     messageId = 1,
-    date = 1,
-    chat = Chat(1, ChatType.Private)
+    date = (System.currentTimeMillis() / 1000).toInt,
+    chat = Chat(1, ChatType.Private),
+    text = Some("/testcmd uppercase it")
   )
   override implicit val patienceConfig: PatienceConfig = PatienceConfig(proxyTimeout)
 
@@ -35,19 +36,14 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
   }
 
   it should "handle request" in {
-    bot.receiveMessage(Message(
-      messageId = 1,
-      date = (System.currentTimeMillis() / 1000).toInt,
-      chat = Chat(id = 1, `type` = ChatType.Private),
-      text = Some("/testcmd uppercase it")
-    ))
+    bot.receiveMessage(message)
 
     // needed to await for requestHandler.apply() call
     val promise = Promise[Message]()
     (requestHandler.apply(_: SendMessage)(_: Manifest[Message])).expects(
       SendMessage(ChatId(1), "UPPERCASE IT"), *
     ).onCall { _ =>
-      promise.success(responseMessage)
+      promise.success(message)
       promise.future
     }
 
@@ -58,19 +54,14 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
   }
 
   it should "ignore invalid message and then handle request anyway" in {
-    bot.receiveMessage(Message(
-      messageId = 1,
-      date = (System.currentTimeMillis() / 1000).toInt,
-      chat = Chat(id = 1, `type` = ChatType.Private),
-      text = Some("/testcmd uppercase it")
-    ))
+    bot.receiveMessage(message)
 
     // needed to await for requestHandler.apply() call
     val promise = Promise[Message]()
     (requestHandler.apply(_: SendMessage)(_: Manifest[Message])).expects(
       SendMessage(ChatId(1), "UPPERCASE IT"), *
     ).onCall { _ =>
-      promise.success(responseMessage)
+      promise.success(message)
       promise.future
     }
 
