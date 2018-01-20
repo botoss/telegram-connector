@@ -5,12 +5,12 @@ import java.util.Properties
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import com.typesafe.config.{Config, ConfigFactory}
-import com.typesafe.scalalogging.StrictLogging
 import resource._
+import ru.botoss.telegram.logging.Logging
 
 import scala.concurrent.ExecutionContext
 
-object DockerEnvironment extends Environment with StrictLogging {
+object DockerEnvironment extends Environment with Logging {
   override val config: Config = {
     val pathnames = Seq("/telegram.properties", "/run/secrets/telegram.properties")
     val config = pathnames.map(parseFile).fold(ConfigFactory.defaultApplication())(_.withFallback(_))

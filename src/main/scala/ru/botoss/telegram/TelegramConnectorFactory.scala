@@ -4,11 +4,13 @@ import akka.actor.ActorRef
 import info.mukel.telegrambot4s.api.BotBase
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
+import ru.botoss.telegram.logging.{DeserializerLogging, SerializerLogging}
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.{KafkaReceiver, KafkaSender}
 import ru.botoss.telegram.serde._
 
 import scala.concurrent.duration.FiniteDuration
+import scala.util.Try
 
 object TelegramConnectorFactory {
 
@@ -28,21 +30,23 @@ object TelegramConnectorFactory {
     import env._
     val producer = new KafkaProducer(
       kafkaProperties,
-      new ShowSerializer[Key],
-      new ShowSerializer[Request])
+      new ShowSerializer[Key] with SerializerLogging[Key],
+      new ShowSerializer[Request] with SerializerLogging[Request])
     val consumer = new KafkaConsumer(
       kafkaProperties,
-      new TryDeserializer(new ReadDeserializer[Key]),
-      new TryDeserializer(new ReadDeserializer[Response]))
+      new TryDeserializer(new ReadDeserializer[Key]) with DeserializerLogging[Try[Key]],
+      new TryDeserializer(new ReadDeserializer[Response]) with DeserializerLogging[Try[Response]])
     val queueProxyActor = system.actorOf(
       QueueProxyActor.props(
         new KafkaSender(producer, topic = "to-module"),
-        proxyTimeout))
+        proxyTimeout),
+      "queue-proxy"
+    )
     system.actorOf(
       QueueReceiverActor.props(
         new KafkaReceiver(consumer, topic = "to-connector"),
-        sendTo = queueProxyActor
-      )
+        sendTo = queueProxyActor),
+      "queue-receiver"
     )
     botGen(queueProxyActor)
   }

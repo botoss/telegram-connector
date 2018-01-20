@@ -3,6 +3,7 @@ package ru.botoss.telegram
 import java.util.UUID
 
 import akka.actor.{Actor, ActorRef, Props}
+import ru.botoss.telegram.logging.ActorLogging
 import ru.botoss.telegram.model.{Key, Request, Response}
 import ru.botoss.telegram.queue.QueueSender
 
@@ -36,7 +37,7 @@ class QueueProxyActor(toModuleSender: QueueSender[Key, Request],
 object QueueProxyActor {
   def props(toModuleSender: QueueSender[Key, Request],
             timeout: FiniteDuration) =
-    Props(new QueueProxyActor(toModuleSender, timeout))
+    Props(new QueueProxyActor(toModuleSender, timeout) with ActorLogging)
 }
 
 private case class RequestTimeout(key: Key)
