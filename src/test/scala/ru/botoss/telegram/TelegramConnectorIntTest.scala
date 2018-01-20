@@ -13,10 +13,11 @@ import scala.concurrent.Promise
 import scala.concurrent.duration._
 import scalaz.Show.showFromToString
 
-class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAndAfterAll with ScalaFutures {
+class TelegramConnectorIntTest extends UnitSpec with RichEmbeddedKafka with BeforeAndAfterAll with ScalaFutures {
   implicit private val env = TestEnvironment
   private val requestHandler = mock[RequestHandler]
   private val proxyTimeout = 10.seconds
+  private val kafkaTimeout = 10.seconds
   private val bot = TelegramConnectorFactory(
     new Bot(_) {
       override val client: RequestHandler = requestHandler
@@ -47,7 +48,8 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
       promise.future
     }
 
-    val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
+    val (key, request) =
+      consumeFirstKeyedMessageFromWithCustomTimeout[Key, Request]("to-module", timeout = kafkaTimeout)
     val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
     publishToKafka("to-connector", key, response)
     promise.future.futureValue
@@ -65,7 +67,8 @@ class TelegramConnectorIntTest extends UnitSpec with EmbeddedKafka with BeforeAn
       promise.future
     }
 
-    val (key, request) = consumeFirstKeyedMessageFrom[Key, Request]("to-module")
+    val (key, request) =
+      consumeFirstKeyedMessageFromWithCustomTimeout[Key, Request]("to-module", timeout = kafkaTimeout)
     val response = Response(text = request.command.params.map(_.toUpperCase).mkString(" "))
     implicit val ss = showFromToString[String]
     publishToKafka("to-connector", "invalid-key", response)
