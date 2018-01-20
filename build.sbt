@@ -38,6 +38,7 @@ dockerfile in docker := {
     // On launch run Java with the classpath and the main class
     entryPoint("java",
       "-cp", classpathString,
+      "-Xmx128m",
       mainclass
     )
   }
